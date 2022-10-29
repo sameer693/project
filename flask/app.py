@@ -30,9 +30,8 @@ def after_request(response):
     return response
 
 @app.route("/")
-@login_required
 def index():
-    render_template("layout.html")
+    return render_template("layout.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
