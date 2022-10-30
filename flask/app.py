@@ -33,6 +33,9 @@ def after_request(response):
 def index():
     return render_template("layout.html")
 
+@app.route("/")
+@login_required
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
@@ -62,6 +65,8 @@ def login():
         session["user_id"] = rows[0]["id"]
 
         # Redirect user to home page
+        print("#####")
+        flash('You were successfully logged in')
         return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -70,6 +75,7 @@ def login():
 
 
 @app.route("/logout")
+@login_required
 def logout():
     """Log user out"""
 
@@ -85,21 +91,20 @@ def register():
     if request.method == "POST":
         if not request.form.get("username"):
             flash('must provide username')
-            return apology("must provide username", 400)
         elif not request.form.get("password"):
-            return apology("must provide password", 400)
+            flash("must provide password", 400)
         elif request.form.get("password") != request.form.get("confirmation"):
-            return apology("password doesnt match", 400)
+            flash("password doesnt match", 400)
         #check if username taken
         rows = db.execute("SELECT username FROM users WHERE username = ?", request.form.get("username"))
         if len(rows)==1:
             flash('username already exist')
-            return apology("username already exist", 400)
         #checks all the input now genrate hash
         hash=generate_password_hash(request.form.get("password"),method='pbkdf2:sha256',salt_length=8)
 
         db.execute('INSERT INTO users (username,hash) values(?,?)',request.form.get("username"),hash)
         flash('You were successfully registered in')
+        return redirect("/")
     # User reached route via GET
     else:
         return redirect("/")
