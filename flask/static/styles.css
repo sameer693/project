@@ -4,8 +4,8 @@
   
   html, body {
     font-family: var(--font-family);
-    padding: 0;
-    margin: 0;
+    padding: 0.5;
+    margin: 0.5;
   }
   
   @media (prefers-color-scheme: dark) {

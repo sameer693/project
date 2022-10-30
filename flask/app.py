@@ -84,6 +84,7 @@ def register():
     """Register user"""
     if request.method == "POST":
         if not request.form.get("username"):
+            flash('must provide username')
             return apology("must provide username", 400)
         elif not request.form.get("password"):
             return apology("must provide password", 400)
@@ -92,6 +93,7 @@ def register():
         #check if username taken
         rows = db.execute("SELECT username FROM users WHERE username = ?", request.form.get("username"))
         if len(rows)==1:
+            flash('username already exist')
             return apology("username already exist", 400)
         #checks all the input now genrate hash
         hash=generate_password_hash(request.form.get("password"),method='pbkdf2:sha256',salt_length=8)

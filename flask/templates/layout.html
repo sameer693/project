@@ -29,44 +29,42 @@
 
     <body>
         {% if get_flashed_messages() %}
-            <header>
-                <div class="alert alert-primary mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }}
-                </div>
-            </header>
+            <sl-alert open>
+              <sl-icon slot="icon" name="info-circle"></sl-icon>
+              {{ get_flashed_messages() | join(" ") }}
+            </sl-alert>
         {% endif %}
         <sl-tab-group activation="manual">
-                    {% if session["user_id"] %}
-                    <sl-tab slot="nav" panel="general">General</sl-tab>
-                    {% else %}
-                    <sl-tab slot="nav" panel="custom">login</sl-tab>
-                    <sl-tab slot="nav" panel="advanced">register</sl-tab> 
-                    {% endif %}
-        <main class="container-fluid py-5 text-center">
             {% if session["user_id"] %}
+            <sl-tab slot="nav" panel="general">General</sl-tab>
             <sl-tab-panel name="general">This is the general tab panel.</sl-tab-panel>
             {% else %}
-            <sl-tab-panel name="login">
-              <form>
+            <sl-tab slot="nav" panel="login">login</sl-tab>
+            <sl-tab slot="nav" panel="register">register</sl-tab> 
+            <sl-tab-panel name="login" >
+              <form class="input-validation-required" action="/login" method="post">
                 <sl-input name='username'  required  label="username" help-text="What would you like people to call you?"></sl-input>
                 <br />
                 <sl-input name='password' required type="password" placeholder="Password" size="medium" password-toggle></sl-input>
                 <br />
+                <sl-button type="submit" variant="primary">Submit</sl-button>
               </form>
             </sl-tab-panel>
             <sl-tab-panel name="register">
-              <form>
+              <form class="input-validation-required" action="/register" method="post">
                 <sl-input name='username'  required  label="username" help-text="What would you like people to call you?"></sl-input>
                 <br />
                 <sl-input name='password' required type="password" placeholder="Password" size="medium" password-toggle></sl-input>
                 <br />
-                <sl-input name="confirmation" required type="password" placeholder="Password" size="medium" password-toggle></sl-input>
+                <sl-input name="confirmation" required type="password" placeholder="confirm Password" size="medium" password-toggle></sl-input>
                 <br />
+                <sl-button type="submit" variant="primary">Submit</sl-button>
               </form>
             </sl-tab-panel> 
             {% endif %}
         </sl-tab-group>
+      <main >
         {% block main %}{% endblock %}
-        </main>
+      </main>
     </body>
 </html>
