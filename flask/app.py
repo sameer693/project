@@ -65,7 +65,6 @@ def login():
         session["user_id"] = rows[0]["id"]
 
         # Redirect user to home page
-        print("#####")
         flash('You were successfully logged in')
         return redirect("/")
 
