@@ -50,10 +50,12 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
+            flash('must provide username')
             return apology("must provide username", 403)
 
         # Ensure password was submitted
         elif not request.form.get("password"):
+            flash('must provide password')
             return apology("must provide password", 403)
 
         # Query database for username
@@ -61,6 +63,7 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            flash('invalid username and/or password')
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
