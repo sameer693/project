@@ -35,8 +35,10 @@ def index():
     
 @app.route("/game")
 @login_required
-def indegame():
-    return
+def game():
+    flash('You were successfully logged in')
+    print('scsss')
+    return render_template("test.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -62,15 +64,13 @@ def login():
         rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"],request.form.get("password")):
             flash('invalid username and/or password')
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
-
         # Redirect user to home page
-        flash('You were successfully logged in')
         return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -94,14 +94,18 @@ def register():
     if request.method == "POST":
         if not request.form.get("username"):
             flash('must provide username')
+            return apology('must provide username')
         elif not request.form.get("password"):
             flash("must provide password", 400)
         elif request.form.get("password") != request.form.get("confirmation"):
             flash("password doesnt match", 400)
+            return apology('password doesnt match')
         #check if username taken
-        rows = db.execute("SELECT username FROM users WHERE username = ?", request.form.get("username"))
+        rows = db.execute("SELECT username FROM users WHERE username = ?",request.form.get("username"))
+        print(rows)
         if len(rows)==1:
             flash('username already exist')
+            return apology('username already exist')
         #checks all the input now genrate hash
         hash=generate_password_hash(request.form.get("password"),method='pbkdf2:sha256',salt_length=8)
 

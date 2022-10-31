@@ -14,7 +14,7 @@
         <title>game: {% block title %}{% endblock %}</title>
     </head>
     <header class="p-3 bg-dark text-white">
-        <centre>game</centre>
+        <centre><a href="/">game</a></centre>
     </header>
     
     <body class="text-centre">        
@@ -52,7 +52,9 @@
       <main class="container-fluid py-5 text-center">
         <!--tabs of all the options-->      
         <div class="container-fluid">
-            
+        {% if session["user_id"] %}
+        <p>hello</p>
+        {% else %}    
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="pills-login-tab">
                 <form action="/login" method="post">
@@ -92,11 +94,11 @@
                     <br>  
                   </form>
             </div>
-        </div>
-   
-          </div>
+            {% endif %}
+      </div>
+      <div>
          {% block main %}{% endblock %}
-
+      </div>
       </main>
     </body>
 </html>
