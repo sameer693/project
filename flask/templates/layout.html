@@ -13,45 +13,78 @@
         <link href="/static/styles.css" rel="stylesheet">
         <title>game: {% block title %}{% endblock %}</title>
     </head>
+    <header class="p-3 bg-dark text-white">
 
-    <body>
-        {% if get_flashed_messages() %}
-            <sl-alert open>
-              <sl-icon slot="icon" name="info-circle"></sl-icon>
-              {{ get_flashed_messages() | join(" ") }}
-            </sl-alert>
-        {% endif %}
-        <main >
-        <sl-tab-group activation="manual">
+    </header>
+    
+    <body class="text-centre">        
+      <nav class="navbar navbar-expand-md  border navbar-dark bg-dark text-white"> 
         {% if session["user_id"] %}
-            <sl-tab slot="nav" panel="general">General</sl-tab>
-            <sl-tab-panel name="general">This is the general tab panel.</sl-tab-panel>
-        {% else %}
-            <sl-tab slot="nav" panel="login">login</sl-tab>
-            <sl-tab slot="nav" panel="register">register</sl-tab> 
-            <sl-tab-panel name="login" >
-              <form action="/login" method="post">
-                <sl-input name="username"  required  label="username" help-text="enter your username"></sl-input>
-                <br />
-                <sl-input name="password" required type="password" placeholder="Password" size="medium" password-toggle></sl-input>
-                <br />
-                <sl-button type="submit" variant="primary">log in</sl-button>
-              </form>
-            </sl-tab-panel>
-            <sl-tab-panel name="register">
-              <form class="input-validation-required" action="/register" method="post">
-                <sl-input name="username"  required  label="username" help-text="What would you like people to call you?"></sl-input>
-                <br />
-                <sl-input name="password" required type="password" placeholder="Password" size="medium" password-toggle></sl-input>
-                <br />
-                <sl-input name="confirmation" required type="password" placeholder="confirm Password" size="medium" password-toggle></sl-input>
-                <br />
-                <sl-button type="submit" variant="primary" --sl-spacing-2x-large>register</sl-button>
-              </form>
-            </sl-tab-panel> 
-        {% endif %}
-        </sl-tab-group>
-        {% block main %}{% endblock %}
+            <ul class="navbar-nav me-auto mt-2">
+                <li class="nav-item"><a class="nav-link" href="/quote">Quote</a></li>
+                <li class="nav-item"><a class="nav-link" href="/buy">Buy</a></li>
+                <li class="nav-item"><a class="nav-link" href="/sell">Sell</a></li>
+                <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
+            </ul>
+            <ul class="navbar-nav ms-auto mt-2">
+                <li class="nav-item"><a class="nav-link" href="/change">change password</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+            </ul>
+        {% else %}                        
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#pills-login" type="button" role="tab" aria-controls="pills-login" aria-selected="true">login</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register" type="button" role="tab" aria-controls="pills-register" aria-selected="false">register</button>
+                </li>                            
+            </ul>                                       
+        {% endif %}              
+      </nav>
+      {% if get_flashed_messages() %}
+          <header>            
+              <div class="alert alert-primary mb-0 text-center" role="alert">
+                  {{ get_flashed_messages() | join(" ") }}
+              </div>
+          </header>
+      {% endif %}
+      
+      <main class="container-fluid py-5 text-center">
+        <!--tabs of all the options-->        
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="pills-login-tab">
+                <form action="/login" method="post">
+                    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+                    <div class="form-floating">
+                      <input name="username" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>                    
+                    <div class="form-floating">
+                      <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                      <label for="floatingPassword">Password</label>
+                    </div>
+                    <button class="w-100 btn btn-lg btn-primary" type="submit">log in</button>
+                  </form>
+            </div>
+            <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="pills-register-tab">
+                <form action="/register" method="post">
+                    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+                    <div class="form-floating">
+                      <input name="username" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>                    
+                    <div class="form-floating">
+                      <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                      <label for="floatingPassword">Password</label>
+                    </div>
+                    <div class="form-floating">
+                        <input name="confirmation" type="password" class="form-control" id="floatingPassword" placeholder="confirm Password">
+                        <label for="floatingPassword">confirm Password</label>
+                      </div>
+                    <button class="w-100 btn btn-lg btn-primary" type="submit">register</button>
+                  </form>
+            </div>
+        </div>
+         {% block main %}{% endblock %}
+
       </main>
     </body>
 </html>

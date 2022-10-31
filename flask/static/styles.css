@@ -1,27 +1,11 @@
-:root {
-    --font-family: sans-serif;
-  }
-  
-  html, body {
-    font-family: var(--font-family);
-    padding: 0.5;
-    margin: 0.5;
-  }
-  
-  @media (prefers-color-scheme: dark) {
-  
-    html,
-    body {
-      background-color: #181818;
-      color: white;
-    }
-  }
-  
-  @media (prefers-color-scheme: light) {
-  
-    html,
-    body {
-      background-color: white;
-      color: black;
-    }
-  }
+/* Size for brand */
+nav .navbar-brand
+{
+    font-size: xx-large;
+}
+
+/* Colors for brand */
+nav .navbar-brand .blue
+{
+    color: #537fbe;
+}

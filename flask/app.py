@@ -30,11 +30,13 @@ def after_request(response):
     return response
 
 @app.route("/")
+@login_required
 def index():
     return render_template("layout.html")
-
-@app.route("/")
+@app.route("/game")
 @login_required
+def indegame():
+    return
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -71,7 +73,6 @@ def login():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return redirect("/")
-
 
 @app.route("/logout")
 @login_required
