@@ -14,11 +14,11 @@
         <title>game: {% block title %}{% endblock %}</title>
     </head>
     <header class="p-3 bg-dark text-white">
-
+        <centre>game</centre>
     </header>
     
     <body class="text-centre">        
-      <nav class="navbar navbar-expand-md  border navbar-dark bg-dark text-white"> 
+      <nav class="navbar navbar-expand-md  navbar-dark bg-dark text-white"> 
         {% if session["user_id"] %}
             <ul class="navbar-nav me-auto mt-2">
                 <li class="nav-item"><a class="nav-link" href="/quote">Quote</a></li>
@@ -50,39 +50,51 @@
       {% endif %}
       
       <main class="container-fluid py-5 text-center">
-        <!--tabs of all the options-->        
+        <!--tabs of all the options-->      
+        <div class="container-fluid">
+            
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="pills-login-tab">
                 <form action="/login" method="post">
                     <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
                     <div class="form-floating">
-                      <input name="username" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-                    </div>                    
+                        <input id="floatingusername" name="username" type="text" class="form-control" placeholder="Username"  required>
+                      <label for="floatingusername">username</label>
+                    </div>  
+                    <br>           
                     <div class="form-floating">
-                      <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                      <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password"  required>
                       <label for="floatingPassword">Password</label>
                     </div>
-                    <button class="w-100 btn btn-lg btn-primary" type="submit">log in</button>
+                    <br>
+                    <button class="w-100 btn  btn-primary" type="submit">log in</button>
                   </form>
             </div>
             <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="pills-register-tab">
                 <form action="/register" method="post">
-                    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+                    <h1 class="h3 mb-3 fw-normal">Please register in</h1>
                     <div class="form-floating">
-                      <input name="username" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-                    </div>                    
+                      <input id="floatingusername" name="username" type="text" class="form-control" placeholder="Username"  required>
+                      <label for="floatingusername">username</label>
+                    </div>       
+                    <br>             
                     <div class="form-floating">
-                      <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                      <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
                       <label for="floatingPassword">Password</label>
                     </div>
+                    <br>  
                     <div class="form-floating">
-                        <input name="confirmation" type="password" class="form-control" id="floatingPassword" placeholder="confirm Password">
+                        <input name="confirmation" type="password" class="form-control" id="floatingPassword" placeholder="confirm Password" required>
                         <label for="floatingPassword">confirm Password</label>
                       </div>
+                    <br>  
                     <button class="w-100 btn btn-lg btn-primary" type="submit">register</button>
+                    <br>  
                   </form>
             </div>
         </div>
+   
+          </div>
          {% block main %}{% endblock %}
 
       </main>
