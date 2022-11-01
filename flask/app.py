@@ -115,3 +115,13 @@ def register():
     # User reached route via GET
     else:
         return redirect("/")
+
+@app.route("/friend")
+@login_required
+def addfriend():
+    if request.method == "POST":
+        rows = db.execute("SELECT username FROM users WHERE username LIKE %(?)% LIMIT 10",request.form.get("username"))
+        return jsonify(rows)
+    else:
+        return render_template("friends.html")
+    
