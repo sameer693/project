@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    my request
+{% endblock %}
+{% block main %}
+<div class="container-fluid">
+    <img class="img-fluid" alt="Sorry!" src="https://api.memegen.link/images/ams/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg"/>
+</div>
+{% endblock %}
