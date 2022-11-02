@@ -116,12 +116,42 @@ def register():
     else:
         return redirect("/")
 
+#to show available friends
 @app.route("/friend")
 @login_required
-def addfriend():
+def showfriend():
     if request.method == "POST":
         rows = db.execute("SELECT username FROM users WHERE username LIKE %(?)% LIMIT 10",request.form.get("username"))
+        print(rows)
         return jsonify(rows)
     else:
         return render_template("friends.html")
+#fetch friend request
+@app.route("/frequest")
+@login_required
+def frequest():
+    if request.method== "POST":
+        if not request.form.get("username"):
+            flash('must provide username')
+        fname=request.form.get("username")
+        rows=db.execute("")
+        return flash('friend added')
+    else:
+        rows=db.execute("SELECT",session["user_id"])
+        return redirect("/")
+#accept friend request
+#to addfriend to relation make request
+@app.route("/addfriend")
+@login_required
+def addfriend():
+    if request.method== "POST":
+        if not request.form.get("username"):
+            flash('must provide username')
+        fname=request.form.get("username")
+        rows=db.execute("INSERT INTO relation (uid_in,uid_ac)VALUES(?,?);",session["user_id"],request.form.get("username"))
+        return flash('friend request intiated')
+    else:
+        return redirect("/friend")
+
+
     
