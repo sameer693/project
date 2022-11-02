@@ -117,7 +117,25 @@ def register():
     else:
         return redirect("/")
 
-#to show available friends
+#fetch friend request
+@app.route("/frequest")
+@login_required
+def frequest():
+    #to do/////////////////////////////////////////////////////////////////////////////////////////////accept or delete
+    if request.method== "POST":
+        if not request.form.get("username"):
+            flash('must provide username')
+        
+        #accept friend request
+        rows=db.execute("UPDATE SET status=1 FROM relation WHERE uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
+        return flash('friend added')
+    else:
+        rows=db.execute("SELECT id,username FROM users WHERE id IN (SELECT uid_in FROM relation WHERE uid_ac=? AND status=0)",session["user_id"])
+        #list of names of friend request from  
+        return render_template("frequest.html",rows)
+   # /////////////////////////////////////////////
+
+#to show available friends on search
 @app.route("/friend")
 @login_required
 def showfriend():
@@ -127,20 +145,6 @@ def showfriend():
         return jsonify(rows)
     else:
         return render_template("friends.html")
-#fetch friend request
-@app.route("/frequest")
-@login_required
-def frequest():
-    if request.method== "POST":
-        if not request.form.get("username"):
-            flash('must provide username')
-        #accept friend request
-        rows=db.execute("UPDATE SET status=1 FROM relation WHERE uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
-        return flash('friend added')
-    else:
-        rows=db.execute("SELECT uid_in FROM relation WHERE uid_ac=? AND status=0",session["user_id"])
-        #list of names of friend request from  
-        return render_template("frequest.html",rows)
 
 #to addfriend to relation make request
 @app.route("/addfriend")
@@ -149,7 +153,15 @@ def addfriend():
     if request.method== "POST":
         if not request.form.get("username"):
             flash('must provide username')
-        db.execute("INSERT INTO relation (uid_in,uid_ac)VALUES(?,?);",session["user_id"],request.form.get("username"))
+        #add id not username
+        rows=db.execute("SELECT id FROM users WHERE username=?",request.form.get("username"))
+        if len(rows) != 1 :
+            flash('invalid username')
+            return redirect("/friend")
+        if session["user_id"]==rows[0]["id"]:
+            flash("self not allowed")
+            redirect("/friend")
+        db.execute("INSERT INTO relation (uid_in,uid_ac)VALUES(?,?);",session["user_id"],rows[0]["id"])
         return flash('friend request intiated')
     else:
         return redirect("/friend")
@@ -160,8 +172,9 @@ def myfriend():
     if request.method== "POST":
         return flash('myfriends')
     else:
-        rows=db.execute("SELECT uid_in FROM relation WHERE(uid_ac=? OR uid_in=?) AND status=1",session["user_id"])
-        return redirect("/friend")
+        #get all ids of friend and from that get names
+        rows=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id",session["user_id"]])
+        return render_template("myfriend.html",rows)
 
 
     
