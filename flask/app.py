@@ -142,8 +142,8 @@ def showfriend():
     rows = db.execute("SELECT username FROM users WHERE username LIKE ? and NOT id=? LIMIT 10","%"+request.args.get("q")+"%",session["user_id"])
     print(rows)
     return jsonify(rows) 
-     
-#to addfriend to relation make request
+
+#to addfriend to relation make request not to same existing friend also
 @app.route("/addfriend",methods=["GET", "POST"])
 @login_required
 def addfriend():
@@ -157,9 +157,14 @@ def addfriend():
 
         if session["user_id"]==rows[0]["id"]:
             flash("self not allowed")
+        #check if not a pre-existing friend
+        check=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
+        if request.form.get("username") in check:
+            flash("already a friend or friend request has been made go check my friend or request")
 
         db.execute("INSERT INTO relation (uid_in,uid_ac)VALUES(?,?);",session["user_id"],rows[0]["id"])
-        return flash('friend request intiated')
+        flash('friend request intiated')
+        return redirect("/")
     else:
         return render_template("friends.html")
 @app.route("/myfriend")
@@ -169,7 +174,7 @@ def myfriend():
         return flash('myfriends')
     else:
         #get all ids of friend and from that get names
-        rows=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id",session["user_id"]])
+        rows=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
         return render_template("myfriend.html",rows=rows)
 
 
