@@ -118,7 +118,7 @@ def register():
         return redirect("/")
 
 #fetch friend request
-@app.route("/frequest")
+@app.route("/frequest",methods=["GET", "POST"]) 
 @login_required
 def frequest():
     #to do/////////////////////////////////////////////////////////////////////////////////////////////accept or delete
@@ -136,18 +136,14 @@ def frequest():
    # /////////////////////////////////////////////
 
 #to show available friends on search and not self
-@app.route("/friend")
+@app.route("/searchfriend")
 @login_required
 def showfriend():
-    if request.method == "POST":
-        rows = db.execute("SELECT username FROM users WHERE username LIKE %(?)% and NOT id=? LIMIT 10",request.form.get("username"),session["user_id"])
-        print(rows)
-        return jsonify(rows)
-    else:
-        return render_template("friends.html")
-
+    rows = db.execute("SELECT username FROM users WHERE username LIKE ? and NOT id=? LIMIT 10","%"+request.args.get("q")+"%",session["user_id"])
+    print(rows)
+    return jsonify(rows)  
 #to addfriend to relation make request
-@app.route("/addfriend")
+@app.route("/addfriend",methods=["GET", "POST"])
 @login_required
 def addfriend():
     if request.method== "POST":
@@ -157,15 +153,14 @@ def addfriend():
         rows=db.execute("SELECT id FROM users WHERE username=?",request.form.get("username"))
         if len(rows) != 1 :
             flash('invalid username')
-            return redirect("/friend")
+
         if session["user_id"]==rows[0]["id"]:
             flash("self not allowed")
-            redirect("/friend")
+
         db.execute("INSERT INTO relation (uid_in,uid_ac)VALUES(?,?);",session["user_id"],rows[0]["id"])
         return flash('friend request intiated')
     else:
-        return redirect("/friend")
-
+        return render_template("friends.html")
 @app.route("/myfriend")
 @login_required
 def myfriend():
@@ -174,7 +169,7 @@ def myfriend():
     else:
         #get all ids of friend and from that get names
         rows=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id",session["user_id"]])
-        return render_template("myfriend.html",rows)
+        return render_template("myfriend.html",rows=rows)
 
 
     
