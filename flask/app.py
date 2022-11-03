@@ -135,12 +135,12 @@ def frequest():
         return render_template("frequest.html",rows)
    # /////////////////////////////////////////////
 
-#to show available friends on search
+#to show available friends on search and not self
 @app.route("/friend")
 @login_required
 def showfriend():
     if request.method == "POST":
-        rows = db.execute("SELECT username FROM users WHERE username LIKE %(?)% LIMIT 10",request.form.get("username"))
+        rows = db.execute("SELECT username FROM users WHERE username LIKE %(?)% and NOT id=? LIMIT 10",request.form.get("username"),session["user_id"])
         print(rows)
         return jsonify(rows)
     else:
