@@ -9,29 +9,28 @@
   <form action="/addfriend" method="post">
     <h1 class="h3 mb-3 fw-normal">Please put your friends username in</h1>
         <div class="form-floating">
-          <input name="username" type="text" class="form-control" id="floatingInputGroup1" placeholder="Username">
+          <input name="username" type="text" class="form-control" id="floatingInputGroup1" placeholder="Username" required>
           <label for="floatingInputGroup1">Username</label>
+          <div id="searchresult" class="list-group">
+          </div>
           <br>       
           <button class="w-100 btn  btn-primary" type="submit">add friend</button>
         </div>
-    
   </form>
-   <div class="text-bg-light">
-        <ul></ul>
-    </div>
 </div>
 <script>
   let input=document.querySelector('input');
   input.addEventListener("input",async function(){
-    let response = await fetch("/searchfriend?q=",input.value);
+    let response = await fetch("/searchfriend?q="+input.value);
     let friends = await response.json();
     let html='';
-    for (let c in friends)
-    {
-      html+="<li>"+friends[c].username+"</li>";
-    }      
-    document.querySelector('<ul>').innerHTML=html;
-          
-  })
+    console.log(friends)
+    for (let c in friends){
+      let name=friends[c].username.replace("<","&lt;")
+      html+=`<button type="button" value=${String(name)} class="list-group-item list-group-item-action" onclick="document.getElementById('floatingInputGroup1').value = this.value">` + name + "</button>";
+    }; 
+    console.log(html)     
+    document.getElementById('searchresult').innerHTML=html;          
+  });
 </script>
 {% endblock %}

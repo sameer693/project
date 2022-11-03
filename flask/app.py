@@ -141,7 +141,8 @@ def frequest():
 def showfriend():
     rows = db.execute("SELECT username FROM users WHERE username LIKE ? and NOT id=? LIMIT 10","%"+request.args.get("q")+"%",session["user_id"])
     print(rows)
-    return jsonify(rows)  
+    return jsonify(rows) 
+     
 #to addfriend to relation make request
 @app.route("/addfriend",methods=["GET", "POST"])
 @login_required
