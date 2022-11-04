@@ -121,20 +121,24 @@ def register():
 @app.route("/frequest",methods=["GET", "POST"]) 
 @login_required
 def frequest():
-    #to do/////////////////////////////////////////////////////////////////////////////////////////////accept or delete
     if request.method== "POST":
         if not request.form.get("username"):
             flash('must provide username')
+            return redirect("/frequest")
         if not request.form.get("action"):
             flash('must provide action')
             return apology("no action",400)
         #accept friend request
-        if request.form.get("action")==1:
+        if request.form.get("action")=="1":
             db.execute("UPDATE SET status=1 FROM relation WHERE uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
             flash('friend added')
-        if request.form.get("action")==0:
+        #delete friend request
+        elif request.form.get("action")=="0":
             db.execute("DELETE FROM relation WHERE  uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
             flash('friend delted')
+        else:
+            flash('must provide action')
+            return apology("no action",400)
         return redirect("/frequest")
     else:
         rows=db.execute("SELECT id,username FROM users WHERE id IN (SELECT uid_in FROM relation WHERE uid_ac=? AND status=0)",session["user_id"])
@@ -143,7 +147,6 @@ def frequest():
             flash("no requests")
             return apology("no requests",400)
         return render_template("frequest.html",rows=rows)
-   # /////////////////////////////////////////////
 
 #to show available friends on search and not self
 @app.route("/searchfriend")
@@ -160,17 +163,21 @@ def addfriend():
     if request.method== "POST":
         if not request.form.get("username"):
             flash('must provide username')
+            return redirect("/addfriend")
         #add id not username
         rows=db.execute("SELECT id FROM users WHERE username=?",request.form.get("username"))
         if len(rows) != 1 :
             flash('invalid username')
-
+            return redirect("/addfriend")
         if session["user_id"]==rows[0]["id"]:
             flash("self not allowed")
+            return redirect("/addfriend")
         #check if not a pre-existing friend
-        check=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
-        if request.form.get("username") in check:
-            flash("already a friend or friend request has been made go check my friend or request")
+        check=db.execute("SELECT username FROM users WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? UNION SELECT uid_ac FROM relation WHERE uid_in=?) ",session["user_id"],session["user_id"])
+        for c in check:
+            if request.form.get("username") in c["username"]:
+                flash("already a friend or friend request has been made go check my friend or request")
+                return redirect("/addfriend")
 
         db.execute("INSERT INTO relation (uid_in,uid_ac)VALUES(?,?);",session["user_id"],rows[0]["id"])
         flash('friend request intiated')
@@ -179,13 +186,13 @@ def addfriend():
         return render_template("friends.html")
 @app.route("/myfriend")
 @login_required
-def myfriend():
-    if request.method== "POST":
-        return flash('myfriends')
-    else:
-        #get all ids of friend and from that get names
-        rows=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
-        return render_template("myfriend.html",rows=rows)
+def myfriend():   
+    #get all ids of friend and from that get names
+    rows=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
+    if len(rows)<1:
+        flash("no friends go and add some")
+        return apology("no friends",400)      
+    return render_template("myfriend.html",rows=rows)
 
 
     

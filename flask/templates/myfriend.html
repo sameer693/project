@@ -4,12 +4,19 @@
     my request
 {% endblock %}
 {% block main %}
-<div class="container-fluid">
-    <img class="img-fluid" alt="Sorry!" src="https://api.memegen.link/images/ams/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg"/>
-</div>
-<table class="table table-dark table-striped">
+<table class="table table-dark table-borderless">
+    <caption>List of request</caption>
+    <thead>
+        <tr>
+            <th>username</th>
+        </tr>    
+    </thead>
     <tbody>
-        <tr></tr>
+        <tr>
+        {% for c in rows%}
+            <td>{{c.username}}</td>
+        {% endfor %}
+        </tr>
     </tbody>                          
 </table>
 {% endblock %}
