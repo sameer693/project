@@ -8,7 +8,7 @@
 <table class="table table-dark table-striped">
     <thead>
         <tr>
-            <th></th>
+            <th>username</th>
         </tr>    
     </thead>
     <tbody>
@@ -19,14 +19,14 @@
                 <form action="/frequest" method="post">
                     <input type="hidden" name="username" value="{{c.id}}">
                     <input type="hidden" name="action" value="1" >
-                    <button type="submit">add friend</button>
+                    <button class="btn btn-success" type="submit">add friend</button>
                 </form>
             </td>
             <td>
                 <form action="/frequest" method="post">
                     <input type="hidden" name="username" value="{{c.id}}">
                     <input type="hidden" name="action" value="0" >
-                    <button type="submit">delete friend request</button>
+                    <button class="btn btn-primary" type="submit">delete request</button>
                 </form>
             </td>
         {% endfor %}
