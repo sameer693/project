@@ -132,7 +132,7 @@ def frequest():
     else:
         rows=db.execute("SELECT id,username FROM users WHERE id IN (SELECT uid_in FROM relation WHERE uid_ac=? AND status=0)",session["user_id"])
         #list of names of friend request from  
-        return render_template("frequest.html",rows)
+        return render_template("frequest.html",rows=rows)
    # /////////////////////////////////////////////
 
 #to show available friends on search and not self
@@ -164,7 +164,7 @@ def addfriend():
 
         db.execute("INSERT INTO relation (uid_in,uid_ac)VALUES(?,?);",session["user_id"],rows[0]["id"])
         flash('friend request intiated')
-        return redirect("/")
+        return redirect("/addfriend")
     else:
         return render_template("friends.html")
 @app.route("/myfriend")
