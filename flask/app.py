@@ -130,7 +130,7 @@ def frequest():
             return apology("no action",400)
         #accept friend request
         if request.form.get("action")=="1":
-            db.execute("UPDATE SET status=1 FROM relation WHERE uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
+            db.execute("UPDATE relation SET status=1 WHERE uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
             flash('friend added')
         #delete friend request
         elif request.form.get("action")=="0":
@@ -188,7 +188,7 @@ def addfriend():
 @login_required
 def myfriend():   
     #get all ids of friend and from that get names
-    rows=db.execute("SELECT username FROM user WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
+    rows=db.execute("SELECT username FROM users WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
     if len(rows)<1:
         flash("no friends go and add some")
         return apology("no friends",400)      
