@@ -4,12 +4,33 @@
     frequest
 {% endblock %}
 {% block main %}
-<div class="container-fluid">
-    <img class="img-fluid" alt="Sorry!" src="https://api.memegen.link/images/ams/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg"/>
-</div>
+<p class="h3">list  of friends</p>
 <table class="table table-dark table-striped">
+    <thead>
+        <tr>
+            <th></th>
+        </tr>    
+    </thead>
     <tbody>
-        <tr></tr>
+        <tr>
+        {% for c in rec%}
+            <td>{{c.username}}</td>
+            <td>
+                <form action="/frequest" method="post">
+                    <input type="hidden" name="username" value="{{c.id}}">
+                    <input type="hidden" name="action" value="1" >
+                    <button type="submit">add friend</button>
+                </form>
+            </td>
+            <td>
+                <form action="/frequest" method="post">
+                    <input type="hidden" name="username" value="{{c.id}}">
+                    <input type="hidden" name="action" value="0" >
+                    <button type="submit">delete friend request</button>
+                </form>
+            </td>
+        {% endfor %}
+        </tr>
     </tbody>                          
 </table>
 {% endblock %}

@@ -125,13 +125,23 @@ def frequest():
     if request.method== "POST":
         if not request.form.get("username"):
             flash('must provide username')
-        
+        if not request.form.get("action"):
+            flash('must provide action')
+            return apology("no action",400)
         #accept friend request
-        rows=db.execute("UPDATE SET status=1 FROM relation WHERE uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
-        return flash('friend added')
+        if request.form.get("action")==1:
+            db.execute("UPDATE SET status=1 FROM relation WHERE uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
+            flash('friend added')
+        if request.form.get("action")==0:
+            db.execute("DELETE FROM relation WHERE  uid_ac=? AND uid_in=?",session["user_id"],request.form.get("username"))
+            flash('friend delted')
+        return redirect("/frequest")
     else:
         rows=db.execute("SELECT id,username FROM users WHERE id IN (SELECT uid_in FROM relation WHERE uid_ac=? AND status=0)",session["user_id"])
-        #list of names of friend request from  
+        #list of names of friend request from
+        if len(rows)<1:
+            flash("no requests")
+            return apology("no requests",400)
         return render_template("frequest.html",rows=rows)
    # /////////////////////////////////////////////
 
