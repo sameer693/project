@@ -9,12 +9,20 @@
     <thead>
         <tr>
             <th>username</th>
+            <th>delete request</th>
         </tr>    
     </thead>
     <tbody>
         <tr>
         {% for c in rows%}
             <td>{{c.username}}</td>
+            <td>
+                <form action="/frequest" method="post">
+                    <input type="hidden" name="username" value="{{c.id}}">
+                    <input type="hidden" name="action" value="0" >
+                    <button class="btn btn-primary" type="submit">delete request</button>
+                </form>
+            </td>
         {% endfor %}
         </tr>
     </tbody>                          

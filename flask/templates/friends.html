@@ -24,12 +24,10 @@
     let response = await fetch("/searchfriend?q="+input.value);
     let friends = await response.json();
     let html='';
-    console.log(friends)
     for (let c in friends){
       let name=friends[c].username.replace("<","&lt;")
       html+=`<button type="button" value=${String(name)} class="list-group-item list-group-item-action" onclick="document.getElementById('floatingInputGroup1').value = this.value">` + name + "</button>";
-    }; 
-    console.log(html)     
+    };      
     document.getElementById('searchresult').innerHTML=html;          
   });
 </script>
