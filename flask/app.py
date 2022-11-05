@@ -34,11 +34,11 @@ def index():
     return render_template("layout.html")
 
     
-@app.route("/game")
+@app.route("/game",methods=["GET", "POST"])
 @login_required
 def game():
     flash('You were successfully logged in')
-    return render_template("test.html")
+    return render_template("game.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
