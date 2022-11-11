@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    startgame
+{% endblock %}
+{% block main %}
+<div class="container-fluid">
+    <form action="/startgame" method="post">
+      <h1 class="h3 mb-3 fw-normal">Please put fill to startgame</h1>
+          <div class="form-floating">
+            <div class="container px-4 text-center">
+                <div class="row gx-5">
+                  <div class="col">
+                    <label for="validationCustom04" class="form-label">friend</label>
+                    <select name="username" class="form-select" id="validationCustom04" required>
+                        <option selected disabled value="">Choose...</option>
+                        {% for c in rows%}
+                        <option value="{{c.id}}">{{c.username}}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col">
+                    <label for="validationCustom04" class="form-label">game</label>
+                    <select name="game" class="form-select" id="validationCustom04" required>
+                        <option selected disabled value="">Choose...</option>
+                        {% for c in games%}
+                        <option value="{{c.id}}">{{c.name}}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+            </div>
+            <br>    
+            <button class="w-100 btn  btn-primary" type="submit">start game</button>
+          </div>
+    </form>
+  </div>
+{% endblock %}

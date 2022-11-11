@@ -33,12 +33,6 @@ def after_request(response):
 def index():
     return render_template("layout.html")
 
-    
-@app.route("/game",methods=["GET", "POST"])
-@login_required
-def game():
-    flash('You were successfully logged in')
-    return render_template("game.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -151,6 +145,8 @@ def frequest():
 @app.route("/searchfriend")
 @login_required
 def showfriend():
+    if not request.args.get("q"):
+        rows=[]
     rows = db.execute("SELECT username FROM users WHERE username LIKE ? and NOT id=? LIMIT 10","%"+request.args.get("q")+"%",session["user_id"])
     print(rows)
     return jsonify(rows) 
@@ -193,5 +189,50 @@ def myfriend():
         return apology("no friends",400)      
     return render_template("myfriend.html",rows=rows)
 
+#play game
+games=[{"id":0,"name":"rockpaper"}]#list of games
 
+@app.route("/game",methods=["GET", "POST"])
+@login_required
+def game():
+    flash('You were successfully logged in')
+    return render_template("game.html")
+#start a game invite
+@app.route("/startgame",methods=["GET", "POST"])
+@login_required
+def startgame():
+    if request.method == "POST":
+        if not request.form.get("username"):
+            flash('must provide username')
+            return redirect("/startgame")
+        if not request.form.get("game"):
+            flash('must provide game name')
+            return redirect("/startgame")
+        for c in games:
+            if str(c["id"])==request.form.get("game"):
+                break
+        else:
+            flash('must provide valid game')
+            return redirect("/startgame")
+        rid=db.execute("SELECT rid FROM relation WHERE (uid_in =? AND uid_ac=?) OR (uid_in =? AND uid_ac=?)",session["id"],request.form.get("username"),request.form.get("username"),session["id"])
+        if len(rid)!=1:
+            flash("must provide correct info")
+            return apology("friend not in the list",400)
+        db.execute("INSERT INTO ginvite (player1,player2,rid,game_id) VALUES (?,?,?,?)",session["id"],request.form.get("username"),rid["rid"],request.form.get("game"))
+        flash("request made succefully to start game")
+        return redirect("/")
+    else:
+        rows=db.execute("SELECT id,username FROM users WHERE id in(SELECT uid_in FROM relation WHERE uid_ac=? AND status=1 UNION SELECT uid_ac FROM relation WHERE uid_in=? AND status=1) ",session["user_id"],session["user_id"])
+        if len(rows)<1:
+            flash("no friends go and add some")
+            return apology("no friends",400)
+        return render_template("startgame.html",rows=rows,games=games)             
+#handle game invitest player1 is request maker and player2 is accepter
+@app.route("/gameinvite",methods=["GET", "POST"])
+@login_required
+def gameinvite():
+    if request.method == "POST":    
+        return
+    else:
+        return render_template("gameinvite.html")
     
