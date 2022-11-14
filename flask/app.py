@@ -214,11 +214,11 @@ def startgame():
         else:
             flash('must provide valid game')
             return redirect("/startgame")
-        rid=db.execute("SELECT rid FROM relation WHERE (uid_in =? AND uid_ac=?) OR (uid_in =? AND uid_ac=?)",session["id"],request.form.get("username"),request.form.get("username"),session["id"])
+        rid=db.execute("SELECT rid FROM relation WHERE (uid_in =? AND uid_ac=?) OR (uid_in =? AND uid_ac=?)",session["user_id"],request.form.get("username"),request.form.get("username"),session["user_id"])
         if len(rid)!=1:
             flash("must provide correct info")
             return apology("friend not in the list",400)
-        db.execute("INSERT INTO ginvite (player1,player2,rid,game_id) VALUES (?,?,?,?)",session["id"],request.form.get("username"),rid["rid"],request.form.get("game"))
+        db.execute("INSERT INTO ginvite (player1,player2,rid,game_id) VALUES (?,?,?,?)",session["user_id"],request.form.get("username"),rid[0]["rid"],request.form.get("game"))
         flash("request made succefully to start game")
         return redirect("/")
     else:
@@ -232,7 +232,34 @@ def startgame():
 @login_required
 def gameinvite():
     if request.method == "POST":    
+        if not request.form.get("action"):
+            flash("no action")
+            return apology("no action",400)
+        if not request.form.get("gid"):
+            flash("no selected")
+            return apology("no selected",400)
+        #accept gamerequest
+        if request.form.get("action")=="1":
+            db.execute("UPDATE ginvite SET status=1 WHERE gid=?",request.form.get("gid"))
+            flash('friend added')
+        #delete game request 
+        elif request.form.get("action")=="0":
+            db.execute("DELETE FROM ginvite WHERE gid=?",request.form.get("gid"))
+            flash('friend delted')
+        else:
+            flash('must provide action')
+            return apology("no action",400)  
+        return redirect("/gameinvite")       
+    else:
+        rows=db.execute("SELECT gid,game_id,username FROM ginvite,users WHERE AND status=0 player2=? AND users.id=ginvite.player1",session["user_id"])
+        if len(rows)<1:
+            return apology("no invites currently to show",400)
+        return render_template("gameinvite.html",rows=rows,games=games)
+    
+@app.route("/play",methods=["GET", "POST"])
+@login_required
+def play():
+    if request.method == "POST": 
         return
     else:
-        return render_template("gameinvite.html")
-    
+        rows=db.execute("SELECT gid,game_id,username FROM ginvite,users WHERE AND status=1 player2=? AND users.id=ginvite.player1",session["user_id"])

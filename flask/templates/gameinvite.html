@@ -10,6 +10,7 @@
     <thead>
         <tr>
             <th>username</th>
+            <th>game</th>
             <th>start game</th>
             <th>delete request</th>
         </tr>    
@@ -18,16 +19,21 @@
         <tr>
         {% for c in rows%}
             <td>{{c.username}}</td>
+            {% for g in games%}
+            {% if c.game_id == g.id%}
+            <td>{{g.name}}</td>
+            {{% endif %}}
+            {% endfor %}
             <td>
                 <form action="/gameinvite" method="post">
-                    <input type="hidden" name="username" value="{{c.id}}">
+                    <input type="hidden" name="gid" value="{{c.gid}}">
                     <input type="hidden" name="action" value="1" >
                     <button class="btn btn-success" type="submit">start game</button>
                 </form>
             </td>
             <td>
                 <form action="/gameinvite" method="post">
-                    <input type="hidden" name="username" value="{{c.id}}">
+                    <input type="hidden" name="gid" value="{{c.gid}}">
                     <input type="hidden" name="action" value="0" >
                     <button class="btn btn-primary" type="submit">delete request</button>
                 </form>
