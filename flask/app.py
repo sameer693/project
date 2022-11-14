@@ -265,9 +265,9 @@ def play():
         #process it to respective database 
         return
     else:
-        #continue game list
+        #continue game list score1,score2
         rows=db.execute("SELECT gid,game_id,username FROM ginvite,users WHERE AND status=1 player2=? AND users.id=ginvite.player1",session["user_id"])
         if len(rows)<1:
             return apology("no games currently to show",400)
-        return render_template("")
+        return render_template("continuegame.html",rows=rows,games=games)
 
