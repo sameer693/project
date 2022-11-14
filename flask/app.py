@@ -242,6 +242,8 @@ def gameinvite():
         if request.form.get("action")=="1":
             db.execute("UPDATE ginvite SET status=1 WHERE gid=?",request.form.get("gid"))
             flash('friend added')
+            db.execute("INSERT INTO stonepaper (gid) VALUES (?)",request.form.get("gid"))
+            
         #delete game request 
         elif request.form.get("action")=="0":
             db.execute("DELETE FROM ginvite WHERE gid=?",request.form.get("gid"))
@@ -251,7 +253,7 @@ def gameinvite():
             return apology("no action",400)  
         return redirect("/gameinvite")       
     else:
-        rows=db.execute("SELECT gid,game_id,username FROM ginvite,users WHERE AND status=0 player2=? AND users.id=ginvite.player1",session["user_id"])
+        rows=db.execute("SELECT gid,game_id,username FROM ginvite,users WHERE status=0 AND player2=? AND users.id=ginvite.player1",session["user_id"])
         if len(rows)<1:
             return apology("no invites currently to show",400)
         return render_template("gameinvite.html",rows=rows,games=games)

@@ -22,7 +22,7 @@
             {% for g in games%}
             {% if c.game_id == g.id%}
             <td>{{g.name}}</td>
-            {{% endif %}}
+            {% endif %}
             {% endfor %}
             <td>
                 <form action="/gameinvite" method="post">
