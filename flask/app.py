@@ -262,6 +262,12 @@ def gameinvite():
 @login_required
 def play():
     if request.method == "POST": 
+        #process it to respective database 
         return
     else:
+        #continue game list
         rows=db.execute("SELECT gid,game_id,username FROM ginvite,users WHERE AND status=1 player2=? AND users.id=ginvite.player1",session["user_id"])
+        if len(rows)<1:
+            return apology("no games currently to show",400)
+        return render_template("")
+
