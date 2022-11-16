@@ -32,3 +32,11 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
+
+def game_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("gid") is None:
+            return redirect("/play")
+        return f(*args, **kwargs)
+    return decorated_function

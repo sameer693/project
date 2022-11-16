@@ -9,16 +9,22 @@
     <caption>List of game</caption>
     <thead>
         <tr>
-            <th>username</th>
+            <th>opponent name</th>
+            <th>score</th>
             <th>game</th>
             <th>start game</th>
-            <th>delete request</th>
         </tr>    
     </thead>
     <tbody>
         <tr>
         {% for c in rows%}
-            <td>{{c.username}}</td>
+            {% if c.player1 == id %}
+            <td>{{c.p2}}</td>
+            <td><span style="color:green;">{{c.score1}}</span> - <span style="color: red;">{{c.score2}}</span></td>
+            {% else %}
+            <td>{{c.p1}}</td>
+            <td><span style="color:green;">{{c.score2}}</span> - <span style="color: red;">{{c.score1}}</span></td>
+            {% endif %}            
             {% for g in games%}
             {% if c.game_id == g.id%}
             <td>{{g.name}}</td>

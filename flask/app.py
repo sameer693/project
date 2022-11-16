@@ -4,7 +4,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required
+from helpers import apology, login_required, game_required
 
 # Configure application
 app = Flask(__name__)
@@ -192,11 +192,6 @@ def myfriend():
 #play game
 games=[{"id":0,"name":"rockpaper"}]#list of games
 
-@app.route("/game",methods=["GET", "POST"])
-@login_required
-def game():
-    flash('You were successfully logged in')
-    return render_template("game.html")
 #start a game invite
 @app.route("/startgame",methods=["GET", "POST"])
 @login_required
@@ -263,11 +258,32 @@ def gameinvite():
 def play():
     if request.method == "POST": 
         #process it to respective database 
-        return
+        if not request.form.get("action"):
+            flash("no action")
+            return apology("no action",400)
+        if not request.form.get("gid"):
+            flash("no selected")
+            return apology("no selected",400)
+        #accept gamerequest to play it
+        if request.form.get("action")=="1":
+            rows=db.execute("SELECT gid FROM ginvite WHERE status=1 AND (player2=? OR player1=?)",session["user_id"],session["user_id"])
+            for c in rows:
+                if c["gid"]==request.form.get("gid"):
+                    session["gid"]=c["gid"]
+                    return redirect("/game")
+        else:
+            return apology("unexpected cant open",400)        
     else:
-        #continue game list score1,score2
-        rows=db.execute("SELECT gid,game_id,username FROM ginvite,users WHERE AND status=1 player2=? AND users.id=ginvite.player1",session["user_id"])
+        #continue game list score1,score2 for both
+        rows=db.execute("SELECT gid,player1,player2,game_id,a.username AS p1,b.username AS p2,score1,score2 FROM ginvite,users a,users b WHERE status=1 AND (player2=? OR player1=?) AND b.id=ginvite.player2 AND a.id=ginvite.player1",session["user_id"],session["user_id"])
         if len(rows)<1:
             return apology("no games currently to show",400)
-        return render_template("continuegame.html",rows=rows,games=games)
+        return render_template("continuegame.html",rows=rows,games=games,id=session["user_id"])
 
+#finally play game using module
+@app.route("/game",methods=["GET", "POST"])
+@login_required
+@game_required
+def game():
+    
+    return render_template("game.html")
