@@ -267,10 +267,15 @@ def play():
         #accept gamerequest to play it
         if request.form.get("action")=="1":
             rows=db.execute("SELECT gid FROM ginvite WHERE status=1 AND (player2=? OR player1=?)",session["user_id"],session["user_id"])
+            print(rows)
             for c in rows:
-                if c["gid"]==request.form.get("gid"):
+                if str(c["gid"])==request.form.get("gid"):
                     session["gid"]=c["gid"]
+                    print(session)
                     return redirect("/game")
+                else:
+                     return apology("unexpected cant open",400) 
+
         else:
             return apology("unexpected cant open",400)        
     else:
@@ -285,5 +290,28 @@ def play():
 @login_required
 @game_required
 def game():
+    if request.method == "POST":
+        return
+    else:
+        ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?")
+        for c in games:
+            if ctr["game_id"] == c["id"]:
+                if c["id"]==0:
+                    stonepaper(session["gid"])
+                    return render_template("game.html")
+
+            else:
+                return apology("")
+
+def stonepaper(gid):
+    #process the inputs
+    #input if zero mean null [1:stone,2:paper,3scissor]
+    check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?")
+    if len(check)!=1:
+        return apology("unexpected err",400)
+    if check[0]["input_1"]==0 or check[0]["input_2"]==0:
+        msg="waiting for your and your friend's input"
+        return render_template("game.html",msg=msg)
     
-    return render_template("game.html")
+        
+    return
