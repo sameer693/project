@@ -5,7 +5,7 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, login_required, game_required
-
+from games import st_pa_sc
 # Configure application
 app = Flask(__name__)
 
@@ -267,11 +267,9 @@ def play():
         #accept gamerequest to play it
         if request.form.get("action")=="1":
             rows=db.execute("SELECT gid FROM ginvite WHERE status=1 AND (player2=? OR player1=?)",session["user_id"],session["user_id"])
-            print(rows)
             for c in rows:
                 if str(c["gid"])==request.form.get("gid"):
                     session["gid"]=c["gid"]
-                    print(session)
                     return redirect("/game")
                 else:
                      return apology("unexpected cant open",400) 
@@ -291,17 +289,27 @@ def play():
 @game_required
 def game():
     if request.method == "POST":
-        return
+        ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?",session["gid"])
+        for c in games:
+            if ctr["game_id"] == c["id"]:
+                if c["id"]==0:
+                    if not request.form.get("choice"):
+                        flash("select something")
+                        return apology("no choice",400)
+                #to upadte and identify player
+                check=db.execute("")
+                    
+            else:
+                return apology("out of bound leave session or make a new game",400)
+
     else:
-        ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?")
+        ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?",session["gid"])
         for c in games:
             if ctr["game_id"] == c["id"]:
                 if c["id"]==0:
                     stonepaper(session["gid"])
-                    return render_template("game.html")
-
             else:
-                return apology("")
+                return apology("out of bound leave session or make a new game",400)
 
 def stonepaper(gid):
     #process the inputs
@@ -309,9 +317,9 @@ def stonepaper(gid):
     check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?")
     if len(check)!=1:
         return apology("unexpected err",400)
-    if check[0]["input_1"]==0 or check[0]["input_2"]==0:
-        msg="waiting for your and your friend's input"
-        return render_template("game.html",msg=msg)
-    
-        
-    return
+    msg,code=st_pa_sc(check)
+    #if same reset inputs and tell same input came
+    if code==9:
+        db.execute("UPDATE stonepaper SET input_1=0 AND input_1=0 WHERE gid=?",gid)
+    return render_template("game.html",msg=msg,code=code)
+
