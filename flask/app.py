@@ -297,8 +297,14 @@ def game():
                         flash("select something")
                         return apology("no choice",400)
                 #to upadte and identify player
-                check=db.execute("")
-                    
+                player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as check FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+                if len(player)!=1:
+                    return apology("process err",400)
+                if player[0]["player"]==1:
+                    db.execute("UPDATE stonepaper SET input_1=? WHERE gid=?", request.form.get("choice"),session["gid"])
+                else:
+                    db.execute("UPDATE stonepaper SET input_2=? WHERE gid=?", request.form.get("choice"),session["gid"])
+                return ("/game")
             else:
                 return apology("out of bound leave session or make a new game",400)
 
