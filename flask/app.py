@@ -304,28 +304,38 @@ def game():
                     db.execute("UPDATE stonepaper SET input_1=? WHERE gid=?", request.form.get("choice"),session["gid"])
                 else:
                     db.execute("UPDATE stonepaper SET input_2=? WHERE gid=?", request.form.get("choice"),session["gid"])
+                flash("selecte your choice")
                 return ("/game")
-            else:
-                return apology("out of bound leave session or make a new game",400)
-
+        else:
+            return apology("out of bound leave session or make a new game",400)
     else:
         ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?",session["gid"])
         for c in games:
-            if ctr["game_id"] == c["id"]:
+            if ctr[0]["game_id"] == c["id"]:
+
                 if c["id"]==0:
-                    stonepaper(session["gid"])
-            else:
-                return apology("out of bound leave session or make a new game",400)
+                    check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?",session["gid"])
+                    if len(check)!=1:
+                        return apology("unexpected err",400)
+                    msg,code=st_pa_sc(check)
+                    #if same reset inputs and tell same input came
+                    if code==9:
+                        db.execute("UPDATE stonepaper SET input_1=0 AND input_1=0 WHERE gid=?",session["gid"])
+                    return render_template("stonepaper.html",msg=msg,code=code)
+        else:           
+            return apology("out of bound leave session or make a new game",400)
 
-def stonepaper(gid):
-    #process the inputs
-    #input if zero mean null [1:stone,2:paper,3scissor]
-    check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?")
-    if len(check)!=1:
-        return apology("unexpected err",400)
-    msg,code=st_pa_sc(check)
-    #if same reset inputs and tell same input came
-    if code==9:
-        db.execute("UPDATE stonepaper SET input_1=0 AND input_1=0 WHERE gid=?",gid)
-    return render_template("game.html",msg=msg,code=code)
-
+@app.route("/gresponse",)
+@login_required
+@game_required
+def response():
+    #to upadte and identify player
+    player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+    if len(player)!=1:
+        return apology("process err",400)
+    if player[0]["player"]==1:
+        #oppnents response
+        res=db.execute("SELECT input_2 as input FROM stonepaper WHERE gid=?",session["user_id"])
+    else:
+        res=db.execute("SELECT input_1 as input FROM stonepaper WHERE gid=?",session["user_id"])
+    return jsonify(res)

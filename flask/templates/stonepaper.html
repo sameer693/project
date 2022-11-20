@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    stone paper
+{% endblock %}
+{% block main %}
+<div id="oppchoice">
+    
+</div>
+<footer>
+    <form action="/game" method="post">
+        <h1 class="h3 mb-3 fw-normal">Please put your choice in</h1>
+            <div class="form-floating">
+              <input type="hidden" id="choice" name="choice" value="">
+              <br>
+              <div class="btn-group" role="group" >
+                <button class="w-100 btn  btn-primary" name="stone" onclick="document.getElementById('choice').value=1"><img class="img-fluid" alt="stone" src="/static/270A_color.png"/></button>
+                <button class="w-100 btn  btn-primary" name="paper" onclick="document.getElementById('choice').value=2"><img class="img-fluid" alt="paper" src="/static/1F4DC_color.png"/></button>
+                <button class="w-100 btn  btn-primary" name="scissor" onclick="document.getElementById('choice').value=3"><img class="img-fluid" alt="scissor" src="/static/2702_color.png"/></button>
+              </div>       
+              <button class="w-100 btn  btn-primary" type="submit">select choice</button>
+            </div>
+    </form>
+</footer>
+<script>
+    setInterval(async function(){
+        let response = await fetch("/gresponse");
+        let check=await response.json();
+        let html='';
+        for (let c in check) {
+            let choice=check[c].input;
+            if (choice==0){
+                continue;
+            }
+            else if(choice==1){
+                html+=`<div class="card mb-3"><img class="img-fluid" alt="stone" src="/static/270A_color.png"/><div class="card-body">stone</div></div>`;
+            }
+            else if(choice==2){
+                html+=`<div class="card mb-3"><img class="img-fluid" alt="paper" src="/static/1F4DC_color.png"/><div class="card-body">paper</div></div>`;
+            }
+            else if(choice==3){
+                html+=`<div class="card mb-3"><img class="img-fluid" alt="scissor" src="/static/2702_color.png"/><div class="card-body">scissor</div></div>`;
+            }            
+        }
+        document.getElementById('oppchoice').innerHTML=html;
+    },3000)
+</script>
+
+{% endblock %}
