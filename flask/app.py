@@ -237,8 +237,7 @@ def gameinvite():
         if request.form.get("action")=="1":
             db.execute("UPDATE ginvite SET status=1 WHERE gid=?",request.form.get("gid"))
             flash('friend added')
-            db.execute("INSERT INTO stonepaper (gid) VALUES (?)",request.form.get("gid"))
-            
+            db.execute("INSERT INTO stonepaper (gid) VALUES (?)",request.form.get("gid"))            
         #delete game request 
         elif request.form.get("action")=="0":
             db.execute("DELETE FROM ginvite WHERE gid=?",request.form.get("gid"))
@@ -272,7 +271,7 @@ def play():
                     session["gid"]=c["gid"]
                     return redirect("/game")
                 else:
-                     return apology("unexpected cant open",400) 
+                    return apology("unexpected cant open",400) 
 
         else:
             return apology("unexpected cant open",400)        
@@ -312,7 +311,6 @@ def game():
         ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?",session["gid"])
         for c in games:
             if ctr[0]["game_id"] == c["id"]:
-
                 if c["id"]==0:
                     check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?",session["gid"])
                     if len(check)!=1:

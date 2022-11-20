@@ -4,10 +4,9 @@
     stone paper
 {% endblock %}
 {% block main %}
-<div id="oppchoice">
-    
-</div>
-<footer>
+<div id="oppchoice"></div>
+
+<footer class="mb-5 text-center">
     <form action="/game" method="post">
         <h1 class="h3 mb-3 fw-normal">Please put your choice in</h1>
             <div class="form-floating">
@@ -34,12 +33,15 @@
             }
             else if(choice==1){
                 html+=`<div class="card mb-3"><img class="img-fluid" alt="stone" src="/static/270A_color.png"/><div class="card-body">stone</div></div>`;
+                clearInterval(this);
             }
             else if(choice==2){
                 html+=`<div class="card mb-3"><img class="img-fluid" alt="paper" src="/static/1F4DC_color.png"/><div class="card-body">paper</div></div>`;
+                clearInterval(this);
             }
             else if(choice==3){
                 html+=`<div class="card mb-3"><img class="img-fluid" alt="scissor" src="/static/2702_color.png"/><div class="card-body">scissor</div></div>`;
+                clearInterval(this);
             }            
         }
         document.getElementById('oppchoice').innerHTML=html;
