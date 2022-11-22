@@ -14,11 +14,13 @@
         
         <title>game: {% block title %}{% endblock %}</title>
     </head>
-    <header class="p-3 bg-dark text-white">
-        <centre><a href="/">game</a></centre>
-    </header>
+    
     <body class="text-centre">        
       <nav class="navbar navbar-expand-md  navbar-dark bg-dark text-white"> 
+        <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar">
         {% if session["user_id"] %}
             <ul class="navbar-nav me-auto mt-2">
                 <li class="nav-item"><a class="nav-link" href="/addfriend">add friend</a></li>
@@ -41,7 +43,8 @@
                     <button class="nav-link" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register" type="button" role="tab" aria-controls="pills-register" aria-selected="false">register</button>
                 </li>                            
             </ul>                                       
-        {% endif %}              
+        {% endif %} 
+      </div>             
       </nav>
       {% if get_flashed_messages() %}
           <header>            
@@ -54,9 +57,7 @@
       <main class="container py-5 text-center">
         <!--tabs of all the options-->      
         <div class="container-fluid">
-        {% if session["user_id"] %}
-        <p>hello</p>
-        {% else %}    
+        {% if not session["user_id"] %}
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="pills-login-tab">
                 <form action="/login" method="post">
