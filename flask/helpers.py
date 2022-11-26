@@ -37,6 +37,6 @@ def game_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get("gid") is None:
-            return apology("err",400)
+            return redirect("/play")
         return f(*args, **kwargs)
     return decorated_function
