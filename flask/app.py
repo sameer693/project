@@ -321,44 +321,7 @@ def game():
                     return render_template("stonepaper.html")
         else:           
             return apology("out of bound leave session or make a new game",400)
-
-@app.route("/stonepaper")
-@login_required
-@game_required
-def response():
-    #to update and identify player 
-    #also to keep a previous record of game till both have not seen it after tha clear the previous parody
-    ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?",session["gid"])
-    for c in games:
-        if ctr[0]["game_id"] == c["id"]:
-            if c["id"]==0:
-                input=[{"input":0}]
-                check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?",session["gid"])
-                if len(check)!=1:
-                    return apology("unexpected err",400)
-                #to check if a win or lose or
-                msg,code=st_pa_sc(check)
-                if code !=0:
-                    player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
-                    if len(player)!=1:
-                        return apology("process err",400)
-                    if player[0]["player"]==1:
-                        #oppnents response
-                        input=db.execute("SELECT input_2 as input FROM stonepaper WHERE gid=?",session["gid"])
-                    else:
-                        input=db.execute("SELECT input_1 as input FROM stonepaper WHERE gid=?",session["gid"])
-                #if same reset inputs and tell same input came
-                if code==9:
-                    db.execute("UPDATE stonepaper SET input_1=0,input_1=0 WHERE gid=?",session["gid"])
-                elif code==1:
-                    db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
-                    db.execute("UPDATE stonepaper SET input_1=0,input_2=0 WHERE gid=?",session["gid"])
-                elif code==2:
-                    db.execute("UPDATE ginvite SET score2=score2+1 WHERE gid=?",session["gid"])
-                    db.execute("UPDATE stonepaper SET input_1=0,input_2=0 WHERE gid=?",session["gid"])
-                return jsonify(code=code,msg=msg,input=input[0]["input"])
-    else:           
-        return apology("out of bound leave session or make a new game",400)    
+ 
 @app.route("/stonepaper")
 @login_required
 @game_required
@@ -374,25 +337,55 @@ def response():
                     return apology("process err",400)
                 if player[0]["player"]==1:
                     #you are player 1
-                    input=db.execute("SELECT input_2 as input FROM stonepaper WHERE gid=?",session["gid"])
                     seen=db.execute("SELECT seen FROM stonepaper WHERE gid=?",session["gid"])
                     #no results have been shown
-                    if seen[0]["seen"]!=0:
+                    if seen[0]["seen"]==0:
                         check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?",session["gid"])
                         msg,code=st_pa_sc(check)
                         #if same reset inputs and tell same input came
                         if code==9:
                             db.execute("UPDATE stonepaper SET input_1=0,input_1=0 WHERE gid=?",session["gid"])
-                        elif code==1:
+                        elif code==1:        
                             db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
-                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0 WHERE gid=?",session["gid"])
+                            #create a parody data for other user
+                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0,parody1=?,parody2=?,seen=1 WHERE gid=?",check[0]["input_1"],check[0]["input_2"],session["gid"])
                         elif code==2:
                             db.execute("UPDATE ginvite SET score2=score2+1 WHERE gid=?",session["gid"])
-                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0 WHERE gid=?",session["gid"])
-                        return jsonify(code=code,msg=msg,input=input[0]["input"])
+                            #create a parody data for other user and seen as 1
+                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0,parody1=?,parody2=?,seen=1 WHERE gid=?",check[0]["input_1"],check[0]["input_2"],session["gid"])
+                        return jsonify(code=code,msg=msg,input=check[0]["input_2"])
                     # result already shown to 2nd player
                     elif seen[0]["seen"]==2:
+                        check=db.execute("SELECT parody1 AS input_1,parody2 AS input_2 FROM stonepaper WHERE gid=?",session["gid"])
                         msg,code=st_pa_sc(check)
-
+                        #now both have result return to default
+                        db.execute("UPDATE stonepaper SET seen=0 WHERE gid=?",session["gid"])
+                        return jsonify(code=code,msg=msg,input=check[0]["input_2"])
                 else:
-                    input=db.execute("SELECT input_1 as input FROM stonepaper WHERE gid=?",session["gid"])
+                    #you are player 2
+                    seen=db.execute("SELECT seen FROM stonepaper WHERE gid=?",session["gid"])
+                    #no results have been shown
+                    if seen[0]["seen"]==0:
+                        check=db.execute("SELECT input_1,input_2 FROM stonepaper WHERE gid=?",session["gid"])
+                        msg,code=st_pa_sc(check)
+                        #if same reset inputs and tell same input came
+                        if code==9:
+                            db.execute("UPDATE stonepaper SET input_1=0,input_1=0 WHERE gid=?",session["gid"])
+                        elif code==1:        
+                            db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
+                            #create a parody data for other user
+                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0,parody1=?,parody2=?,seen=2 WHERE gid=?",check[0]["input_1"],check[0]["input_2"],session["gid"])
+                        elif code==2:
+                            db.execute("UPDATE ginvite SET score2=score2+1 WHERE gid=?",session["gid"])
+                            #create a parody data for other user
+                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0,parody1=?,parody2=?,seen=2 WHERE gid=?",check[0]["input_1"],check[0]["input_2"],session["gid"])
+                        return jsonify(code=code,msg=msg,input=check[0]["input_1"])
+                    # result already shown to 1st player
+                    elif seen[0]["seen"]==2:
+                        check=db.execute("SELECT parody1 AS input_1,parody2 AS input_2 FROM stonepaper WHERE gid=?",session["gid"])
+                        msg,code=st_pa_sc(check)
+                        #now both have result return to default
+                        db.execute("UPDATE stonepaper SET seen=0 WHERE gid=?",session["gid"])
+                        return jsonify(code=code,msg=msg,input=check[0]["input_1"])
+    else:           
+        return apology("out of bound leave session or make a new game",400)  
