@@ -12,3 +12,13 @@ def st_pa_sc(check):
             return "player2 won",2         
     except:
         return "unexpected err",400
+def oddeve(check):
+    try:
+        if check[0]["input_1"]==0 or check[0]["input_2"]==0:
+            return "waiting for your and your friend's input",0
+        elif check[0]["input_1"]==check[0]["input_2"]:
+            return "same input",9
+        elif check[0]["input_1"]%2==0 and check[0]["input_2"]%2!=0:
+            return
+    except:
+        return "unexpected err",400

@@ -4,8 +4,7 @@
     stone paper
 {% endblock %}
 {% block main %}
-<p>oppnent choice</p>
-<div id="oppchoice">
+<div id="oppchoice"  class="container-fluid">
     <p>oppnent choice</p>    
 </div>
 <div id="execute">
@@ -31,12 +30,8 @@
     async function checker(){
         let response = await fetch("/stonepaper");
         let info=await response.json();
-        let html="";
-        console.log(info);
         let code=info.code;
         let msg=info.msg;
-        console.log(code);
-        console.log(msg);
         if (code !=0){
             let input=info.input;
             clearInterval(timer);
@@ -50,8 +45,7 @@
             else if (input==3){
                 document.getElementById("oppchoice").innerHTML=`<button type="disabled"  class="btn btn-primary btn-sm"><img class="img-fluid" alt="scissor" src="/static/2702_color.png"/></button>`;                   
             }
-            console.log(input);
-            document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1>`;
+            document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1><button class="w-100 btn  btn-primary" onClick="window.location.reload();">Replay</button>`;
         }
     }
     timer=setInterval(checker,3000);

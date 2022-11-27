@@ -15,6 +15,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_COOKIE_NAME"] = "session"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
@@ -319,6 +320,8 @@ def game():
             if ctr[0]["game_id"] == c["id"]:
                 if c["id"]==0:
                     return render_template("stonepaper.html")
+                elif c["id"]==1:
+                    return render_template("oddeve.html")
         else:           
             return apology("out of bound leave session or make a new game",400)
  
@@ -345,6 +348,8 @@ def response():
                         #if same reset inputs and tell same input came
                         if code==9:
                             db.execute("UPDATE stonepaper SET input_1=0,input_1=0 WHERE gid=?",session["gid"])
+                            #create a parody data for other user
+                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0,parody1=?,parody2=?,seen=1 WHERE gid=?",check[0]["input_1"],check[0]["input_2"],session["gid"])
                         elif code==1:        
                             db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
                             #create a parody data for other user
@@ -371,6 +376,8 @@ def response():
                         #if same reset inputs and tell same input came
                         if code==9:
                             db.execute("UPDATE stonepaper SET input_1=0,input_1=0 WHERE gid=?",session["gid"])
+                            #create a parody data for other user
+                            db.execute("UPDATE stonepaper SET input_1=0,input_2=0,parody1=?,parody2=?,seen=2 WHERE gid=?",check[0]["input_1"],check[0]["input_2"],session["gid"])
                         elif code==1:        
                             db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
                             #create a parody data for other user
@@ -381,7 +388,7 @@ def response():
                             db.execute("UPDATE stonepaper SET input_1=0,input_2=0,parody1=?,parody2=?,seen=2 WHERE gid=?",check[0]["input_1"],check[0]["input_2"],session["gid"])
                         return jsonify(code=code,msg=msg,input=check[0]["input_1"])
                     # result already shown to 1st player
-                    elif seen[0]["seen"]==2:
+                    elif seen[0]["seen"]==1:
                         check=db.execute("SELECT parody1 AS input_1,parody2 AS input_2 FROM stonepaper WHERE gid=?",session["gid"])
                         msg,code=st_pa_sc(check)
                         #now both have result return to default
