@@ -189,7 +189,7 @@ def myfriend():
     return render_template("myfriend.html",rows=rows)
 
 #play game
-games=[{"id":0,"name":"rockpaper"}]#list of games
+games=[{"id":0,"name":"rockpaper"},{"id":1,"name":"oddeve"}]#list of games
 
 #start a game invite
 @app.route("/startgame",methods=["GET", "POST"])
@@ -232,11 +232,23 @@ def gameinvite():
         if not request.form.get("gid"):
             flash("no selected")
             return apology("no selected",400)
+        if not request.form.get("game_id"):
+            flash("no selected")
+            return apology("no selected game_id",400)
         #accept gamerequest
         if request.form.get("action")=="1":
             db.execute("UPDATE ginvite SET status=1 WHERE gid=?",request.form.get("gid"))
             flash('friend added')
-            db.execute("INSERT INTO stonepaper (gid) VALUES (?)",request.form.get("gid"))            
+            for c in games:
+                if str(c["id"])==request.form.get("game_id"):
+                    #accept gamerequest for the game we play
+                    if c["id"]==0:
+                        db.execute("INSERT INTO stonepaper (gid) VALUES (?)",request.form.get("gid"))            
+                    elif c["id"]==1:
+                        db.execute("INSERT INTO oddeve (gid) VALUES(?)",request.form.get("gid"))
+            else:
+                flash("no selected type in bound")
+                return apology("no selected game_id found",400)
         #delete game request 
         elif request.form.get("action")=="0":
             db.execute("DELETE FROM ginvite WHERE gid=?",request.form.get("gid"))
@@ -312,6 +324,16 @@ def game():
                         db.execute("UPDATE stonepaper SET input_2=?,parody2=? WHERE gid=?", request.form.get("choice"), request.form.get("choice"),session["gid"])
                     flash("selected your choice")
                     return redirect("/game")
+                #to do
+                if c["id"]==1:
+                    if not request.form.get("choice"):
+                        flash("select something")
+                        return apology("no choice",400)
+                    #to upadte and identify player
+                    player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+                    if len(player)!=1:
+                        return apology("process err",400)
+                    if player[0]["player"]==1:
         else:
             return apology("out of bound leave session or make a new game",400)
     else:
