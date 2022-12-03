@@ -4,7 +4,8 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import apology, login_required, game_required
-from games import st_pa_sc
+from games import st_pa_sc,oddeve
+from random import randint
 # Configure application
 app = Flask(__name__)
 
@@ -189,7 +190,7 @@ def myfriend():
     return render_template("myfriend.html",rows=rows)
 
 #play game
-games=[{"id":0,"name":"rockpaper"},{"id":1,"name":"oddeve"}]#list of games
+games=[{"id":0,"name":"rockpaper"},{"id":1,"name":"oddeve cricket"}]#list of games
 
 #start a game invite
 @app.route("/startgame",methods=["GET", "POST"])
@@ -243,9 +244,11 @@ def gameinvite():
                 if str(c["id"])==request.form.get("game_id"):
                     #accept gamerequest for the game we play
                     if c["id"]==0:
-                        db.execute("INSERT INTO stonepaper (gid) VALUES (?)",request.form.get("gid"))            
+                        db.execute("INSERT INTO stonepaper (gid) VALUES (?)",request.form.get("gid"))  
+                        break          
                     elif c["id"]==1:
                         db.execute("INSERT INTO oddeve (gid) VALUES(?)",request.form.get("gid"))
+                        break
             else:
                 flash("no selected type in bound")
                 return apology("no selected game_id found",400)
@@ -281,9 +284,8 @@ def play():
                 if str(c["gid"])==request.form.get("gid"):
                     session["gid"]=c["gid"]
                     return redirect("/game")
-                else:
-                    return apology("unexpected cant open",400) 
-
+            else:
+                return apology("unexpected cant open",400) 
         else:
             return apology("unexpected cant open",400)        
     else:
@@ -321,11 +323,11 @@ def game():
                         if check[0]["input"]!=0:
                             flash("already selected your choice")
                             return redirect("/game")
-                        db.execute("UPDATE stonepaper SET input_2=?,parody2=? WHERE gid=?", request.form.get("choice"), request.form.get("choice"),session["gid"])
+                        db.execute("UPDATE stonepaper SET input_2=? WHERE gid=?", request.form.get("choice"),session["gid"])
                     flash("selected your choice")
                     return redirect("/game")
                 #to do
-                if c["id"]==1:
+                elif c["id"]==1:
                     if not request.form.get("choice"):
                         flash("select something")
                         return apology("no choice",400)
@@ -334,6 +336,19 @@ def game():
                     if len(player)!=1:
                         return apology("process err",400)
                     if player[0]["player"]==1:
+                        check=db.execute("SELECT input_1 AS input FROM oddeve WHERE gid=?",session["gid"])
+                        if check[0]["input"]!=0:
+                            flash("already selected your choice")
+                            return redirect("/game")
+                        db.execute("UPDATE oddeve SET input_1=? WHERE gid=?", request.form.get("choice"),session["gid"])
+                    else:
+                        check=db.execute("SELECT input_2 AS input FROM oddeve WHERE gid=?",session["gid"])
+                        if check[0]["input"]!=0:
+                            flash("already selected your choice")
+                            return redirect("/game")
+                        db.execute("UPDATE oddeve SET input_2=? WHERE gid=?", request.form.get("choice"),session["gid"])
+                    flash("selected your choice")
+                    return redirect("/game")
         else:
             return apology("out of bound leave session or make a new game",400)
     else:
@@ -347,7 +362,7 @@ def game():
         else:           
             return apology("out of bound leave session or make a new game",400)
  
-@app.route("/stonepaper")
+@app.route("/response")
 @login_required
 @game_required
 def response():
@@ -356,6 +371,7 @@ def response():
     ctr=db.execute("SELECT game_id FROM ginvite WHERE gid=?",session["gid"])
     for c in games:
         if ctr[0]["game_id"] == c["id"]:
+            #stone paper
             if c["id"]==0:
                 player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
                 if len(player)!=1:
@@ -416,5 +432,95 @@ def response():
                         #now both have result return to default
                         db.execute("UPDATE stonepaper SET seen=0 WHERE gid=?",session["gid"])
                         return jsonify(code=code,msg=msg,input=check[0]["input_1"])
+            #oddeve game cricket
+            elif c["id"]==1:
+                seen=db.execute("SELECT seen FROM oddeve WHERE gid=?",session["gid"])
+                #you are player 1
+                check=db.execute("SELECT input_1,input_2,innings,run1,run2,wicket1,wicket2 FROM oddeve WHERE gid=?",session["gid"])
+                #no results have been shown
+                if seen[0]["seen"]==0:
+                    #run to be added maybe
+                    msg,code=oddeve(check)
+                    if check[0]["innings"]==0:
+                        #toss
+                        inn=randint(1,2)
+                        db.execute("UPDATE oddeve SET innings=? WHERE gid=?",inn,session["gid"])
+                        return jsonify(code=-1,msg=f"toss won by player{inn} and he will bat")
+                    if check[0]["innings"]==1:
+                        if code!=0:
+                            if code==1:
+                                db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
+                            elif code==2:
+                                db.execute("UPDATE ginvite SET score2=score2+1 WHERE gid=?",session["gid"])
+                            elif code==3:
+                                db.execute("UPDATE oddeve SET wicket1=wicket1-1 WHERE gid=?",session["gid"])
+                            elif code==4:
+                                db.execute("UPDATE oddeve SET run1=run1+? WHERE gid=?",check[0]["run1"],session["gid"])
+                            elif code==5:
+                                db.execute("UPDATE oddeve SET innings=2 WHERE gid=?",session["gid"])
+                            #keeping record of what happend and who saw
+                            player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+                            if len(player)!=1:
+                                return apology("process err",400)
+                            if player[0]["player"]==1:
+                                db.execute("UPDATE oddeve SET code=?,msg=?,seen=1,input_1=0,input_2=0,opinput=? WHERE gid=?",code,msg,check[0]["input_2"],session["gid"])   
+                                return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=check[0]["input_2"],inning=check[0]["innings"])
+                            else:
+                                db.execute("UPDATE oddeve SET code=?,msg=?,seen=2,input_1=0,input_2=0,opinput=? WHERE gid=?",code,msg,check[0]["input_1"],session["gid"])   
+                                return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=check[0]["input_1"],inning=check[0]["innings"])
+                        else:
+                            return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],inning=check[0]["innings"])
+                    else:
+                        if code!=0:
+                            if code==1:
+                                db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
+                            elif code==2:
+                                db.execute("UPDATE ginvite SET score2=score2+1 WHERE gid=?",session["gid"])
+                            elif code==3:
+                                db.execute("UPDATE oddeve SET wicket2=wicket2-1 WHERE gid=?",session["gid"])
+                            elif code==4:
+                                db.execute("UPDATE oddeve SET run2=run2+? WHERE gid=?",check[0]["run2"],session["gid"])
+                            elif code==5:
+                                db.execute("UPDATE oddeve SET innings=1 WHERE gid=?",session["gid"])
+                            #keeping record of what happend and who saw
+                            player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+                            if len(player)!=1:
+                                return apology("process err",400)
+                            if player[0]["player"]==1:
+                                db.execute("UPDATE oddeve SET code=?,msg=?,seen=1,input_1=0,input_2=0,opinput=? WHERE gid=?",code,msg,check[0]["input_2"],session["gid"])
+                                return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=check[0]["input_2"],inning=check[0]["innings"])
+                              
+                            else:
+                                db.execute("UPDATE oddeve SET code=?,msg=?,seen=2,input_1=0,input_2=0,opinput=? WHERE gid=?",code,msg,check[0]["input_1"],session["gid"]) 
+                                return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=check[0]["input_1"],inning=check[0]["innings"])
+                            
+                        else:
+                            return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],inning=check[0]["innings"])
+                elif seen[0]["seen"]==1:
+                    player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+                    if len(player)!=1:
+                        return apology("process err",400)
+                    if player[0]["player"]==2:
+                        prev=db.execute("SELECT code,msg,opinput FROM oddeve WHERE gid=?")
+                        db.execute("UPDATE oddeve SET seen=0 WHERE gid=?",session["gid"])   
+                        return jsonify(code=prev[0]["code"],msg=prev[0]["msg"],run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=prev[0]["opinput"],inning=check[0]["innings"])
+                    #he already saw it 
+                    else:
+                        msg,code=oddeve(check)
+                        return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],inning=check[0]["innings"])
+
+                elif seen[0]["seen"]==2:
+                    player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+                    if len(player)!=1:
+                        return apology("process err",400)
+                    if player[0]["player"]==1:
+                        prev=db.execute("SELECT code,msg,opinput FROM oddeve WHERE gid=?")
+                        db.execute("UPDATE oddeve SET seen=0 WHERE gid=?",session["gid"]) 
+                        return jsonify(code=prev[0]["code"],msg=prev[0]["msg"],run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=prev[0]["opinput"],inning=check[0]["innings"])               
+                    #he already saw it 
+                    else:
+                        msg,code=oddeve(check)
+                        return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],inning=check[0]["innings"])
+
     else:           
         return apology("out of bound leave session or make a new game",400)  

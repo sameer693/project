@@ -16,8 +16,8 @@
         </tr>    
     </thead>
     <tbody>
-        <tr>
         {% for c in rows%}
+        <tr>
             {% if c.player1 == id %}
             <td>{{c.p2}}</td>
             <td><span style="color:green;">{{c.score1}}</span> - <span style="color: red;">{{c.score2}}</span></td>
@@ -28,8 +28,6 @@
             {% for g in games%}
             {% if c.game_id == g.id%}
             <td>{{g.name}}</td>
-            {% endif %}
-            {% endfor %}
             <td>
                 <form action="/play" method="post">
                     <input type="hidden" name="gid" value="{{c.gid}}">
@@ -37,8 +35,10 @@
                     <button class="btn btn-success btn-sm" type="submit">continue game</button>
                 </form>
             </td>
-        {% endfor %}
+            {% endif %}
+            {% endfor %}
         </tr>
+        {% endfor %}
     </tbody>                          
 </table>
 {% endblock %}

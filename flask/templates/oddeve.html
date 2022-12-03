@@ -3,6 +3,217 @@
 {% block title %}
    oddeve
 {% endblock %}
+
 {% block main %}
+<div id="score"  class="container-fluid bg-light">
+
+</div>
+<div id="oppchoice"  class="container-fluid" style="background-color: blue;">
+   <span role="button">oppnent choice</span>    
+</div>
+<div id="execute">
+   <p>wating for opponents choice</p>
+</div>
+<footer class="mb-5 text-center">
+   <form action="/game" method="post">
+      <h1 class="h3 mb-3 fw-normal">Please put your choice between 1 to 6 run</h1>
+            <div class="form-floating">
+              <input type="number" max="6" min="1" id="choice" name="choice">
+              <br>
+              <button class="w-100 btn  btn-primary" type="submit">select choice</button>
+            </div>
+   </form>
+</footer>
+<script>
+   var timer;
+   let check=0;
+   async function checker(){
+      let response = await fetch("/response");
+      let info=await response.json();
+      let msg=info.msg;
+      let code=info.code;
+      let run1=info.run1;
+      let run2=info.run2;
+      let wicket1=info.wicket1;
+      let wicket2=info.wicket2;
+      let inning=info.inning;
+      if (code!=0){
+      document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1>`;
+      if (code==1 || code==2){
+         document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1><button class="w-100 btn  btn-warning" onClick="window.location.reload();">Replay</button>`;
+         clearInterval(timer);
+      }
+      else if (code==4 || code==3 || code==5){
+         let input=info.opinput;         
+         document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1>`;
+         document.getElementById("oppchoice").innerHTML=`<span role="button">${input}</span>`;
+         if (code == 5){
+            document.getElementById("execute").insertAdjacentHTML="<p>next inning starts now</p>";          
+            clearInterval(timer);
+         }
+         document.getElementById("oppchoice").insertAdjacentHTML=`<button type="button" class="btn btn-primary onClick="start">next chance</button>`; 
+      }
+      if (inning==1){
+         if (run2==0 && wicket2==3){
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 1st player :${run1}
+        </div>
+        <div class="col">
+          wicket left :${wicket1}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          player 2 yet to bat
+        </div>        
+      </div>
+      </div>`;
+         }
+         if (wicket2==0){
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 1st player :${run1}
+        </div>
+        <div class="col">
+          wicket left :${wicket1}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          target to reach :${run2}
+        </div>        
+      </div>
+      </div>`;
+         }
+      }
+      else if (inning==2){
+         if (run1==0 && wicket1==3){
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 2nd player :${run1}
+        </div>
+        <div class="col">
+          wicket left :${wicket2}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          player 1 yet to bat
+        </div>        
+      </div>
+      </div>`;
+         }
+         if (wicket1==0){            
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 2nd player :${run2}
+        </div>
+        <div class="col">
+          wicket left :${wicket2}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          target to reach :${run1}
+        </div>        
+      </div>
+      </div>`;            
+         }
+      }
+      }
+      if (check=0 && code==0){
+         if (inning==1){
+         if (run2==0 && wicket2==3){
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 1st player :${run1}
+        </div>
+        <div class="col">
+          wicket left :${wicket1}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          player 2 yet to bat
+        </div>        
+      </div>
+      </div>`;
+         }
+         if (wicket2==0){
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 1st player :${run1}
+        </div>
+        <div class="col">
+          wicket left :${wicket1}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          target to reach :${run2}
+        </div>        
+      </div>
+      </div>`;
+         }
+      }
+      else if (inning==2){
+         if (run1==0 && wicket1==3){
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 2nd player :${run1}
+        </div>
+        <div class="col">
+          wicket left :${wicket2}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          player 1 yet to bat
+        </div>        
+      </div>
+      </div>`;
+         }
+         if (wicket1==0){            
+            document.getElementById("score").innerHTML=`<div class="container text-center">
+      <div class="row">
+        <div class="col">
+         runs by 2nd player :${run2}
+        </div>
+        <div class="col">
+          wicket left :${wicket2}
+        </div>
+        <div class="col">
+          innings :${inning}
+        </div>
+        <div class="col">
+          target to reach :${run1}
+        </div>        
+      </div>
+      </div>`;            
+         }
+      }
+      check=1;
+      }
+   }
+    function start(){
+    timer=setInterval(checker,3000);
+    }
+    start();
+</script>
 
 {% endblock %}

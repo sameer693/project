@@ -28,7 +28,7 @@
 <script>
     var timer;
     async function checker(){
-        let response = await fetch("/stonepaper");
+        let response = await fetch("/response");
         let info=await response.json();
         let code=info.code;
         let msg=info.msg;
