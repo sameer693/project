@@ -32,7 +32,8 @@ def after_request(response):
 
 @app.route("/")
 def index():
-    return render_template("layout.html")
+    
+    return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -440,22 +441,32 @@ def response():
                 #no results have been shown
                 if seen[0]["seen"]==0:
                     #run to be added maybe
-                    msg,code=oddeve(check)
                     if check[0]["innings"]==0:
                         #toss
                         inn=randint(1,2)
-                        db.execute("UPDATE oddeve SET innings=? WHERE gid=?",inn,session["gid"])
+                        player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
+                        if len(player)!=1:
+                            return apology("process err",400)
+                        if player[0]["player"]==1:
+                            db.execute("UPDATE oddeve SET innings=?,seen=1,msg=?,code=-1 WHERE gid=?",inn,f"toss won by player{inn} and he will bat",session["gid"])               
+                        else:
+                            db.execute("UPDATE oddeve SET innings=?,seen=2,msg=?,code=-1 WHERE gid=?",inn,f"toss won by player{inn} and he will bat",session["gid"])                                
                         return jsonify(code=-1,msg=f"toss won by player{inn} and he will bat")
+                    #now do it
+                    msg,code=oddeve(check)
                     if check[0]["innings"]==1:
                         if code!=0:
                             if code==1:
                                 db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
+                                db.execute("UPDATE oddeve SET innings=0,wicket1=3,wicket2=3,run1=0,run2=0 WHERE gid=?",session["gid"])
                             elif code==2:
                                 db.execute("UPDATE ginvite SET score2=score2+1 WHERE gid=?",session["gid"])
+                                db.execute("UPDATE oddeve SET innings=0,wicket1=3,wicket2=3,run1=0,run2=0 WHERE gid=?",session["gid"])
+                        
                             elif code==3:
                                 db.execute("UPDATE oddeve SET wicket1=wicket1-1 WHERE gid=?",session["gid"])
                             elif code==4:
-                                db.execute("UPDATE oddeve SET run1=run1+? WHERE gid=?",check[0]["run1"],session["gid"])
+                                db.execute("UPDATE oddeve SET run1=run1+? WHERE gid=?",check[0]["input_1"],session["gid"])
                             elif code==5:
                                 db.execute("UPDATE oddeve SET innings=2 WHERE gid=?",session["gid"])
                             #keeping record of what happend and who saw
@@ -474,14 +485,18 @@ def response():
                         if code!=0:
                             if code==1:
                                 db.execute("UPDATE ginvite SET score1=score1+1 WHERE gid=?",session["gid"])
+                                db.execute("UPDATE oddeve SET innings=0,wicket1=3,wicket2=3,run1=0,run2=0 WHERE gid=?",session["gid"])
+                            
                             elif code==2:
                                 db.execute("UPDATE ginvite SET score2=score2+1 WHERE gid=?",session["gid"])
+                                db.execute("UPDATE oddeve SET innings=0,wicket1=3,wicket2=3,run1=0,run2=0 WHERE gid=?",session["gid"])
+                            
                             elif code==3:
                                 db.execute("UPDATE oddeve SET wicket2=wicket2-1 WHERE gid=?",session["gid"])
                             elif code==4:
-                                db.execute("UPDATE oddeve SET run2=run2+? WHERE gid=?",check[0]["run2"],session["gid"])
+                                db.execute("UPDATE oddeve SET run2=run2+? WHERE gid=?",check[0]["input_2"],session["gid"])
                             elif code==5:
-                                db.execute("UPDATE oddeve SET innings=1 WHERE gid=?",session["gid"])
+                                db.execute("UPDATE oddeve SET innings=2 WHERE gid=?",session["gid"])
                             #keeping record of what happend and who saw
                             player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
                             if len(player)!=1:
@@ -501,7 +516,7 @@ def response():
                     if len(player)!=1:
                         return apology("process err",400)
                     if player[0]["player"]==2:
-                        prev=db.execute("SELECT code,msg,opinput FROM oddeve WHERE gid=?")
+                        prev=db.execute("SELECT code,msg,opinput FROM oddeve WHERE gid=?",session["gid"])
                         db.execute("UPDATE oddeve SET seen=0 WHERE gid=?",session["gid"])   
                         return jsonify(code=prev[0]["code"],msg=prev[0]["msg"],run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=prev[0]["opinput"],inning=check[0]["innings"])
                     #he already saw it 
@@ -514,7 +529,7 @@ def response():
                     if len(player)!=1:
                         return apology("process err",400)
                     if player[0]["player"]==1:
-                        prev=db.execute("SELECT code,msg,opinput FROM oddeve WHERE gid=?")
+                        prev=db.execute("SELECT code,msg,opinput FROM oddeve WHERE gid=?",session["gid"])
                         db.execute("UPDATE oddeve SET seen=0 WHERE gid=?",session["gid"]) 
                         return jsonify(code=prev[0]["code"],msg=prev[0]["msg"],run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=prev[0]["opinput"],inning=check[0]["innings"])               
                     #he already saw it 

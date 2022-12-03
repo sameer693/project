@@ -8,7 +8,7 @@
 <div id="score"  class="container-fluid bg-light">
 
 </div>
-<div id="oppchoice"  class="container-fluid" style="background-color: blue;">
+<div id="oppchoice"  class="container-fluid" style="background-color: rgb(109, 155, 241);">
    <span role="button">oppnent choice</span>    
 </div>
 <div id="execute">
@@ -22,11 +22,11 @@
               <br>
               <button class="w-100 btn  btn-primary" type="submit">select choice</button>
             </div>
+
    </form>
 </footer>
 <script>
    var timer;
-   let check=0;
    async function checker(){
       let response = await fetch("/response");
       let info=await response.json();
@@ -45,13 +45,14 @@
       }
       else if (code==4 || code==3 || code==5){
          let input=info.opinput;         
-         document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1>`;
          document.getElementById("oppchoice").innerHTML=`<span role="button">${input}</span>`;
-         if (code == 5){
-            document.getElementById("execute").insertAdjacentHTML="<p>next inning starts now</p>";          
-            clearInterval(timer);
+         if (code!=5){
+            document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1><button type="button" class="w-100 btn btn-warning onClick="window.location.reload();">next chance</button>`;
          }
-         document.getElementById("oppchoice").insertAdjacentHTML=`<button type="button" class="btn btn-primary onClick="start">next chance</button>`; 
+         else {
+            document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1><p>next inning starts now</p><button type="button" class="w-100 btn btn-warning onClick="window.location.reload();">next chance</button>`;          
+         }
+         clearInterval(timer);
       }
       if (inning==1){
          if (run2==0 && wicket2==3){
@@ -63,6 +64,9 @@
         <div class="col">
           wicket left :${wicket1}
         </div>
+      </div>
+        <div class="row">
+        
         <div class="col">
           innings :${inning}
         </div>
@@ -81,6 +85,9 @@
         <div class="col">
           wicket left :${wicket1}
         </div>
+      </div>
+        <div class="row">
+        
         <div class="col">
           innings :${inning}
         </div>
@@ -96,11 +103,14 @@
             document.getElementById("score").innerHTML=`<div class="container text-center">
       <div class="row">
         <div class="col">
-         runs by 2nd player :${run1}
+         runs by 2nd player :${run2}
         </div>
         <div class="col">
           wicket left :${wicket2}
         </div>
+      </div>
+        <div class="row">
+        
         <div class="col">
           innings :${inning}
         </div>
@@ -119,6 +129,9 @@
         <div class="col">
           wicket left :${wicket2}
         </div>
+      </div>
+        <div class="row">
+        
         <div class="col">
           innings :${inning}
         </div>
@@ -130,7 +143,8 @@
          }
       }
       }
-      if (check=0 && code==0){
+      if (code==0){
+         document.getElementById("execute").innerHTML=`<h1 style="background-color: grey;padding: 5px;">${msg}</h1>`;
          if (inning==1){
          if (run2==0 && wicket2==3){
             document.getElementById("score").innerHTML=`<div class="container text-center">
@@ -141,6 +155,9 @@
         <div class="col">
           wicket left :${wicket1}
         </div>
+      </div>
+        <div class="row">
+        
         <div class="col">
           innings :${inning}
         </div>
@@ -159,6 +176,9 @@
         <div class="col">
           wicket left :${wicket1}
         </div>
+      </div>
+        <div class="row">
+        
         <div class="col">
           innings :${inning}
         </div>
@@ -174,11 +194,14 @@
             document.getElementById("score").innerHTML=`<div class="container text-center">
       <div class="row">
         <div class="col">
-         runs by 2nd player :${run1}
+         runs by 2nd player :${run2}
         </div>
         <div class="col">
           wicket left :${wicket2}
         </div>
+      </div>
+        <div class="row">
+        
         <div class="col">
           innings :${inning}
         </div>
@@ -197,6 +220,8 @@
         <div class="col">
           wicket left :${wicket2}
         </div>
+        </div>
+        <div class="row">
         <div class="col">
           innings :${inning}
         </div>
@@ -207,7 +232,6 @@
       </div>`;            
          }
       }
-      check=1;
       }
    }
     function start(){

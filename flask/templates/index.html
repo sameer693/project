@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+   index
+{% endblock %}
+
+{% block main %}
+<h1>list of type of games and how to play</h1>
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          stone paper scissors
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>This is the first game</strong> it is simple multiplayer game you select your choice and your oppnent selects his and the rules are same as stone-paper-scissors.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingTwo">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          oddeve cricket
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>This is the second game</strong> It is simple  multiplayer game you select your choice and your opponent does if they match its a out, else it is counted as runs . rules same as game of cricket. Your aim is to reach the target if you are batting and its your inning or to stop them before they reach the target 
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+           how to play
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <strong>This is the instructions</strong>
+            <li>to play you need to have a friend </li>
+            <li>to add friend go to add friend to start a friend request you and your shoud check friend request</li>
+            <li>and the go to start a match select a friend and game </li>
+            <li>you can check your friend from my friends</li>
+            <li>a game request initiated your friend shoud check game request</li>
+            <li>after selecting you can play the game and see the score between you and your friend</li>
+            <li>you can always continue your game from continue game</li>           
+        </div>
+        </div>
+      </div>
+    </div>
+    
+{% endblock %}

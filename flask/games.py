@@ -20,7 +20,7 @@ def oddeve(check):
         if check[0]["innings"]==1:
             #to check if target is set by other player and reached       
             if check[0]["run2"]!=0:
-                if check[0]["run2"]==check[0]["run1"]:
+                if check[0]["run2"]<=check[0]["run1"]:
                     return "match won by 1st player",1
                 elif check[0]["wicket1"]==0:
                     return "all out match won by 2nd player",2 
@@ -35,7 +35,7 @@ def oddeve(check):
         elif check[0]["innings"]==2:
             #to check if target is set by other player and reached       
             if check[0]["run1"]!=0:
-                if check[0]["run2"]==check[0]["run1"]:
+                if check[0]["run2"]>=check[0]["run1"]:
                     return "match won by 2nd player",2
                 elif check[0]["wicket2"]==0:
                     return "all out match won by 1st player",1
