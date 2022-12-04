@@ -31,8 +31,8 @@ def after_request(response):
     return response
 
 @app.route("/")
+@login_required
 def index():
-    
     return render_template("index.html")
 
 
@@ -71,7 +71,7 @@ def login():
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return redirect("/")
+        return render_template("layout.html")
 
 @app.route("/logout")
 @login_required
@@ -110,7 +110,7 @@ def register():
         return redirect("/")
     # User reached route via GET
     else:
-        return redirect("/")
+        return render_template("layout.html")
 
 #fetch friend request
 @app.route("/frequest",methods=["GET", "POST"]) 
@@ -469,12 +469,13 @@ def response():
                                 db.execute("UPDATE oddeve SET run1=run1+? WHERE gid=?",check[0]["input_1"],session["gid"])
                             elif code==5:
                                 db.execute("UPDATE oddeve SET innings=2 WHERE gid=?",session["gid"])
+                                check[0]["innings"]=2
                             #keeping record of what happend and who saw
                             player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
                             if len(player)!=1:
                                 return apology("process err",400)
                             if player[0]["player"]==1:
-                                db.execute("UPDATE oddeve SET code=?,msg=?,seen=1,input_1=0,input_2=0,opinput=? WHERE gid=?",code,msg,check[0]["input_2"],session["gid"])   
+                                db.execute("UPDATE oddeve SET code=?,msg=?,seen=1,input_1=0,input_2=0,opinput=? WHERE gid=?",code,msg,check[0]["input_2"],session["gid"])       
                                 return jsonify(code=code,msg=msg,run2=check[0]["run2"],run1=check[0]["run1"],wicket1=check[0]["wicket1"],wicket2=check[0]["wicket2"],opinput=check[0]["input_2"],inning=check[0]["innings"])
                             else:
                                 db.execute("UPDATE oddeve SET code=?,msg=?,seen=2,input_1=0,input_2=0,opinput=? WHERE gid=?",code,msg,check[0]["input_1"],session["gid"])   
@@ -496,7 +497,8 @@ def response():
                             elif code==4:
                                 db.execute("UPDATE oddeve SET run2=run2+? WHERE gid=?",check[0]["input_2"],session["gid"])
                             elif code==5:
-                                db.execute("UPDATE oddeve SET innings=2 WHERE gid=?",session["gid"])
+                                db.execute("UPDATE oddeve SET innings=1 WHERE gid=?",session["gid"])
+                                check[0]["innings"]=1
                             #keeping record of what happend and who saw
                             player=db.execute("SELECT CASE WHEN player1=? THEN 1 WHEN player2=? THEN 2 END as player FROM ginvite WHERE gid=?",session["user_id"],session["user_id"],session["gid"])
                             if len(player)!=1:
